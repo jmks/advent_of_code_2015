@@ -7,4 +7,9 @@ defmodule Input do
       File.read!("lib/day_#{day}/input")
     end)
   end
+
+  def lines(day) do
+    read(day)
+    |> String.split("\n")
+  end
 end
