@@ -20,4 +20,14 @@ defmodule Day01.NotQuiteLispTest do
     assert follow(")))") == -3
     assert follow(")())())") == -3
   end
+
+  describe "enter_basement/1" do
+    test "on the first character" do
+      assert enter_basement(")") == 1
+    end
+
+    test "after a few characters" do
+      assert enter_basement("()())") == 5
+    end
+  end
 end
