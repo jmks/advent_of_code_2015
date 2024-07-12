@@ -16,4 +16,18 @@ defmodule Day03.SphericalHousesTest do
       assert unique_houses("^v^v^v^v^v") == 2
     end
   end
+
+  describe "robo_houses/1" do
+    test "unique" do
+      assert robo_houses("^v") == 3
+    end
+
+    test "overlaps starting house" do
+      assert robo_houses("^>v<") == 3
+    end
+
+    test "diverge" do
+      assert robo_houses("^v^v^v^v^v") == 11
+    end
+  end
 end
