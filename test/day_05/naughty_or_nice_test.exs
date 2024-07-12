@@ -30,4 +30,25 @@ defmodule Day05.NaughtyOrNiceTest do
     assert naughty_string?("ab")
     assert naughty_string?("cabc")
   end
+
+  test "pair_appearing_twice?/1" do
+    assert pair_appearing_twice?("xyxy")
+    assert pair_appearing_twice?("aabcdefgaa")
+    refute pair_appearing_twice?("aaa")
+    assert pair_appearing_twice?("xxxxx")
+  end
+
+  test "letter_sandwich?/1" do
+    assert letter_sandwich?("xyx")
+    assert letter_sandwich?("abcdefeghi")
+    assert letter_sandwich?("aaa")
+    refute letter_sandwich?("aab")
+  end
+
+  test "new_nice?/1" do
+    assert new_nice?("qjhvhtzxzqqjkmpb")
+    assert new_nice?("xxyxx")
+    refute new_nice?("uurcxstgmygtbstg")
+    refute new_nice?("ieodomkazucvgmuy")
+  end
 end
