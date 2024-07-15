@@ -3,18 +3,32 @@ defmodule Day06.FireHazard do
     defstruct [:grid, :on, :off, :toggle]
 
     def new(switch_type \\ :on_off, size \\ 1_000) do
-      if switch_type == :on_off do
-        grid =
-          for x <- 0..size, y <- 0..size, into: %{} do
-            {{x, y}, false}
-          end
+      case switch_type do
+        :on_off ->
+          grid =
+            for x <- 0..size, y <- 0..size, into: %{} do
+              {{x, y}, false}
+            end
 
-        %__MODULE__{
-          grid: grid,
-          on: fn _ -> true end,
-          off: fn _ -> false end,
-          toggle: fn state -> not state end
-        }
+          %__MODULE__{
+            grid: grid,
+            on: fn _ -> true end,
+            off: fn _ -> false end,
+            toggle: fn state -> not state end
+          }
+
+        :brightness ->
+          grid =
+            for x <- 0..size, y <- 0..size, into: %{} do
+              {{x, y}, 0}
+            end
+
+          %__MODULE__{
+            grid: grid,
+            on: fn b -> b + 1 end,
+            off: fn b -> Enum.max([0, b - 1]) end,
+            toggle: fn b -> b + 2 end
+          }
       end
     end
   end
@@ -26,16 +40,17 @@ defmodule Day06.FireHazard do
   end
 
   def apply_instruction(lights, instructions) when is_list(instructions) do
-    new_grid = Enum.reduce(instructions, lights.grid, fn {action, to, from}, grid ->
-      lights_between(to, from)
-      |> Enum.reduce(grid, fn coord, grid ->
-        state = Map.fetch!(grid, coord)
+    new_grid =
+      Enum.reduce(instructions, lights.grid, fn {action, to, from}, grid ->
+        lights_between(to, from)
+        |> Enum.reduce(grid, fn coord, grid ->
+          state = Map.fetch!(grid, coord)
 
-        new_state = Map.fetch!(lights, action).(state)
+          new_state = Map.fetch!(lights, action).(state)
 
-        Map.put(grid, coord, new_state)
+          Map.put(grid, coord, new_state)
+        end)
       end)
-    end)
 
     %{lights | grid: new_grid}
   end

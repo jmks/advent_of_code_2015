@@ -39,6 +39,20 @@ defmodule Day06.FireHazardTest do
     assert count_on(grid) == 3
   end
 
+  test "brightness" do
+    lights =
+      Lights.new(:brightness, 3)
+      |> apply_instruction(
+        parse_instructions("""
+        turn on 0,0 through 0,2
+        turn off 1,0 through 1,2
+        toggle 2,0 through 2,2
+        """)
+      )
+
+    assert count_on(lights) == 9
+  end
+
   test "parse_instructions/1" do
     assert parse_instructions("turn on 0,0 through 999,999") == [{:on, {0, 0}, {999, 999}}]
     assert parse_instructions("toggle 0,0 through 999,0") == [{:toggle, {0, 0}, {999, 0}}]
