@@ -2,11 +2,12 @@ defmodule Day06.FireHazardTest do
   use ExUnit.Case, async: true
 
   import Day06.FireHazard
+  alias Day06.FireHazard.Lights
 
   @tag :slow
   test "turning lights on" do
     grid =
-      new(1_000)
+      Lights.new()
       |> apply_instruction(parse_instructions("turn on 0,0 through 999,999"))
 
     assert count_on(grid) == 1_000_000
@@ -14,7 +15,7 @@ defmodule Day06.FireHazardTest do
 
   test "turn on, off and toggle" do
     grid =
-      new(3)
+      Lights.new(:on_off, 3)
       |> apply_instruction(
         parse_instructions("""
         turn on 0,0 through 0,2

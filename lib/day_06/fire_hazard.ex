@@ -1,24 +1,53 @@
 defmodule Day06.FireHazard do
+  defmodule Lights do
+    defstruct [:grid, :on, :off, :toggle]
+
+    def new(switch_type \\ :on_off, size \\ 1_000) do
+      if switch_type == :on_off do
+        grid =
+          for x <- 0..size, y <- 0..size, into: %{} do
+            {{x, y}, false}
+          end
+
+        %__MODULE__{
+          grid: grid,
+          on: fn _ -> true end,
+          off: fn _ -> false end,
+          toggle: fn state -> not state end
+        }
+      end
+    end
+  end
+
   def parse_instructions(instructions) do
     instructions
     |> String.split("\n", trim: true)
     |> Enum.map(&parse_instruction/1)
   end
 
-  def new(size \\ 1_000) do
-    for x <- 0..size, y <- 0..size, into: %{} do
-      {{x, y}, false}
-    end
+  def apply_instruction(lights, instructions) when is_list(instructions) do
+    new_grid = Enum.reduce(instructions, lights.grid, fn {action, to, from}, grid ->
+      lights_between(to, from)
+      |> Enum.reduce(grid, fn coord, grid ->
+        state = Map.fetch!(grid, coord)
+
+        new_state = Map.fetch!(lights, action).(state)
+
+        Map.put(grid, coord, new_state)
+      end)
+    end)
+
+    %{lights | grid: new_grid}
   end
 
-  def apply_instruction(grid, instructions) when is_list(instructions) do
-    Enum.reduce(instructions, grid, &apply_to_grid/2)
-  end
-
-  def count_on(grid) do
-    grid
-    |> Enum.filter(fn {_coord, on?} -> on? end)
-    |> length()
+  def count_on(lights) do
+    lights.grid
+    |> Enum.map(fn
+      {_coord, true} -> 1
+      {_coord, false} -> 0
+      {_coord, brightness} when is_integer(brightness) -> brightness
+    end)
+    |> Enum.sum()
   end
 
   defp parse_instruction(instruction) do
@@ -37,27 +66,6 @@ defmodule Day06.FireHazard do
     |> Enum.map(&String.to_integer/1)
     |> Enum.chunk_every(2)
     |> Enum.map(&List.to_tuple/1)
-  end
-
-  defp apply_to_grid({:on, to, from}, grid) do
-    apply_to_lights(grid, to, from, fn _ -> true end)
-  end
-
-  defp apply_to_grid({:off, to, from}, grid) do
-    apply_to_lights(grid, to, from, fn _ -> false end)
-  end
-
-  defp apply_to_grid({:toggle, to, from}, grid) do
-    apply_to_lights(grid, to, from, fn onness -> not onness end)
-  end
-
-  defp apply_to_lights(grid, to, from, fun) do
-    lights_between(to, from)
-    |> Enum.reduce(grid, fn coord, grid ->
-      state = Map.fetch!(grid, coord)
-
-      Map.put(grid, coord, fun.(state))
-    end)
   end
 
   defp lights_between({x1, y1}, {x2, y2}) do
